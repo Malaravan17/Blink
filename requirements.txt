@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+jinja2
+sqlalchemy
+passlib[bcrypt]
+python-multipart
+PyPDF2
+sentence-transformers
+faiss-cpu
+aiofiles
+pandas
+openpyxl
+torch
+transformers
+numpy
