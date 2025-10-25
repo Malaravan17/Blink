@@ -3,174 +3,206 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VoiceBot Dashboard</title>
+<title>VoiceBot Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
 
   body {
     height: 100vh;
-    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #290c24ff, #632b42ff, #3e3624ff);
+    background: radial-gradient(circle at top left, #ff00ff33, #00ffff22),
+                radial-gradient(circle at bottom right, #00ff8833, #ff880022),
+                linear-gradient(135deg, #0a0014, #240046, #19002e, #000);
     background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
+    animation: moveBG 20s ease infinite;
+    overflow: hidden;
     position: relative;
   }
 
-  @keyframes gradientBG {
+  @keyframes moveBG {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
 
-  /* Floating animated circles */
-  .floating-circle {
+  /* Animated Stars */
+  .star {
     position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    opacity: 0.8;
     border-radius: 50%;
-    background: rgba(255,255,255,0.05);
-    animation: float 20s linear infinite;
-    z-index: 0;
+    animation: twinkle 3s infinite ease-in-out alternate;
   }
 
-  @keyframes float {
-    0% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-200px) rotate(180deg); }
-    100% { transform: translateY(0) rotate(360deg); }
+  @keyframes twinkle {
+    0% { opacity: 0.1; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.4); }
   }
 
   .container {
-    position: relative;
-    z-index: 10;
     text-align: center;
-    max-width: 1200px;
-    width: 90%;
-    padding: 20px;
+    z-index: 2;
+    padding: 30px;
   }
 
   h1 {
-    font-size: 3rem;
-    color: #fff;
-    margin-bottom: 60px;
-    text-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    background: linear-gradient(90deg, #ff00ffff, #cd5aa3ff, #ff7f7fff);
+    font-size: 3.5rem;
+    letter-spacing: 3px;
+    background: linear-gradient(90deg, #ff00ff, #00f0ff, #ff7f50, #ffea00);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    letter-spacing: 2px;
-    animation: textGlow 3s ease-in-out infinite alternate;
+    text-shadow: 0 0 30px rgba(255,255,255,0.5);
+    animation: pulseText 3s infinite alternate;
+    margin-bottom: 60px;
   }
 
-  @keyframes textGlow {
-    0% { text-shadow: 0 0 5px #fff; }
-    100% { text-shadow: 0 0 20px #cd5abaff; }
+  @keyframes pulseText {
+    0% { filter: drop-shadow(0 0 5px #ff00ff); }
+    100% { filter: drop-shadow(0 0 25px #00f0ff); }
   }
 
   .box-container {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     flex-wrap: wrap;
     gap: 40px;
   }
 
   .box {
-    position: relative;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 25px;
     width: 300px;
     height: 220px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 25px;
+    backdrop-filter: blur(15px);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    backdrop-filter: blur(20px);
-    transition: all 0.5s ease;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    position: relative;
     cursor: pointer;
     overflow: hidden;
+    transition: all 0.5s ease;
+    box-shadow: 0 0 25px rgba(255,255,255,0.1);
   }
 
   .box::before {
-    content: '';
+    content: "";
     position: absolute;
-    width: 120%;
-    height: 120%;
-    background: linear-gradient(120deg, #ff6ec4, #7873f5, #de4a4aff);
-    top: -50%;
-    left: -50%;
-    transform: rotate(0deg);
-    transition: all 0.6s ease;
+    width: 400%;
+    height: 400%;
+    background: conic-gradient(
+      from 0deg,
+      #ff00ff,
+      #00ffff,
+      #ffea00,
+      #ff7f50,
+      #ff00ff
+    );
+    animation: spin 4s linear infinite;
     z-index: 0;
+    opacity: 0.4;
   }
 
-  .box:hover::before {
-    transform: rotate(180deg);
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .box::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    background: rgba(0,0,0,0.8);
+    border-radius: 20px;
+    z-index: 1;
   }
 
   .box span {
     position: relative;
     z-index: 2;
-    background: linear-gradient(90deg, #6a5acd, #00f0ff);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(90deg, #ff00ff, #00f0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    transition: all 0.4s ease;
+    transition: 0.3s;
+  }
+
+  .box:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 40px rgba(255,255,255,0.3);
   }
 
   .box:hover span {
-    color: #fff;
-    -webkit-text-fill-color: white;
+    background: linear-gradient(90deg, #ffea00, #ff7f50, #00ffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .footer {
-    color: #ccc;
+    color: #bbb;
     font-size: 0.9rem;
     margin-top: 70px;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px rgba(255,255,255,0.2);
   }
 
   @media screen and (max-width: 768px) {
-    .box-container {
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .box { width: 90%; }
+    h1 { font-size: 2.3rem; }
+    .box { width: 90%; height: 180px; }
   }
 </style>
 </head>
 <body>
-  <!-- Floating decorative circles -->
-  <div class="floating-circle" style="width:200px;height:200px;top:10%;left:5%;animation-duration:25s;"></div>
-  <div class="floating-circle" style="width:150px;height:150px;top:60%;left:80%;animation-duration:30s;"></div>
-  <div class="floating-circle" style="width:250px;height:250px;top:40%;left:50%;animation-duration:35s;"></div>
+
+  <!-- Random Stars (JS creates more below) -->
+  <div id="stars"></div>
 
   <div class="container">
-    <h1>SUPPORT DESK</h1>
+    <h1>🌠 SUPPORT PORTAL 🌠</h1>
     <div class="box-container">
-      <div class="box" onclick="navigateTo('student')"><span>Student</span></div>
-      <div class="box" onclick="navigateTo('admin')"><span>Admin</span></div>
-      <div class="box" onclick="navigateTo('parent')"><span>Parent</span></div>
+      <div class="box" onclick="navigateTo('student')"><span>STUDENT</span></div>
+      <div class="box" onclick="navigateTo('admin')"><span>ADMIN</span></div>
+      <div class="box" onclick="navigateTo('parent')"><span>PARENT</span></div>
     </div>
     <div class="footer">
-      © 2025 | Designed by Team 5
+      © 2025 | Designed by Team 5 ✨
     </div>
   </div>
 
 <script>
 function navigateTo(role) {
-  if(role === 'student') {
+  if (role === 'student') {
     window.location.href = '/login_student';
-  } else if(role === 'admin') {
+  } else if (role === 'admin') {
     window.location.href = '/login_admin';
   } else {
-    alert('Parent login not implemented yet!');
+    alert('Parent login portal is under cosmic construction 🛠️🚀');
   }
 }
+
+// Generate random stars 🌟
+const starContainer = document.getElementById("stars");
+for (let i = 0; i < 100; i++) {
+  const star = document.createElement("div");
+  star.classList.add("star");
+  star.style.top = Math.random() * 100 + "%";
+  star.style.left = Math.random() * 100 + "%";
+  star.style.animationDuration = (2 + Math.random() * 3) + "s";
+  star.style.opacity = Math.random();
+  starContainer.appendChild(star);
+}
 </script>
+
 </body>
 </html>

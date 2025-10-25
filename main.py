@@ -10,15 +10,11 @@ import faiss
 from datetime import datetime, date, timezone
 from collections import defaultdict
 from sqlalchemy.orm import Session
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
 from sentence_transformers import SentenceTransformer
 from database import get_db
-from models import StudentLogin, Base
+from models import StudentLogin
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-
-# Initialize database tables
-from database import engine
-Base.metadata.create_all(bind=engine)
 
 # ---------------- CONFIG ----------------
 ADMIN_EMAIL = "nataraj@bitsathy.ac.in"
@@ -40,20 +36,11 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"[INFO] Using device: {device}")
 
 # ---------------- MODELS ----------------
-# Embedding model
 embedding_model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2", device=device)
 
-# LLaMA 3.1 for answer generation - using a publicly available model
-tokenizer = AutoTokenizer.from_pretrained(
-    "microsoft/DialoGPT-medium"
-)
-model = AutoModelForCausalLM.from_pretrained(
-    "microsoft/DialoGPT-medium",
-    device_map="auto",
-    torch_dtype=torch.float16
-)
-
-qa_model = pipeline("text-generation", model=model, tokenizer=tokenizer)
+tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-large")
+model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-large").to(device)
+qa_model = pipeline("text2text-generation", model=model, tokenizer=tokenizer, device=0 if device=="cuda" else -1)
 
 # ---------------- FAISS SETUP ----------------
 def load_faiss_index():
@@ -108,7 +95,7 @@ def embed_chunks(chunks, source_file):
 
 # ---------------- DELETE EMBEDDINGS ----------------
 def delete_embeddings_for(filename):
-    global index, metadata
+    global index, metadata, embedding_model
     remaining = [m for m in metadata if m[0] != filename]
     removed_count = len(metadata) - len(remaining)
     if removed_count == 0:
@@ -146,10 +133,6 @@ def semantic_search(query, top_k=5):
     return " ".join(results), avg_distance
 
 def ask_model(context, question):
-    max_tokens = 900  # leave some room for generated tokens
-    context_tokens = tokenizer.encode(context, truncation=True, max_length=max_tokens)
-    context = tokenizer.decode(context_tokens)
-    
     prompt = f"""
 Answer this question using the context below. Keep your answer concise.
 
@@ -159,9 +142,20 @@ Question: {question}
 
 Answer:
 """
-    result = qa_model(prompt, max_new_tokens=250, do_sample=True, temperature=0.7)
-    return result[0]["generated_text"].strip()
+    result = qa_model(prompt, max_new_tokens=150, do_sample=False, temperature=0.1)
+    answer = result[0]["generated_text"]
+    return re.sub(r"(?<=[.!?])\s+", "\n", answer.strip())
 
+# ---------------- ALLOWED STUDENTS ----------------
+ALLOWED_USERNAMES = [
+    "malaravan",
+    "rishitha",
+    "amirtha",
+    "kavinkumar",
+    "sanjay"
+]
+ALLOWED_DOMAIN = "@bitsathy.ac.in"
+ALLOWED_PASSWORD = "123456"
 
 # ---------------- ROUTES ----------------
 @app.get("/", response_class=HTMLResponse)
@@ -187,7 +181,9 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
     today = date.today()
     login_counts = defaultdict(lambda: {"count": 0, "last_login": "N/A"})
     for login in logins:
-        ts = login.timestamp
+        ts = getattr(login, "timestamp", None)
+        if ts is None:
+            continue
         if ts.tzinfo is None:
             ts = ts.replace(tzinfo=datetime.now().astimezone().tzinfo)
         if ts.date() == today:
@@ -236,12 +232,35 @@ def student_login_page(request: Request):
 
 @app.post("/student_login")
 def student_login(request: Request, email: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    if email.endswith("@bitsathy.ac.in"):
-        login_entry = StudentLogin(email=email)
+    email_clean = email.strip().lower()
+    password_clean = password.strip()
+
+    # ✅ Check if valid @bitsathy.ac.in email
+    if not email_clean.endswith(ALLOWED_DOMAIN):
+        return templates.TemplateResponse(
+            "login_student.html",
+            {"request": request, "error": "Only @bitsathy.ac.in emails are allowed."}
+        )
+
+    username = email_clean.split("@")[0]
+
+    # ✅ Check if username exists in allowed list
+    if username not in ALLOWED_USERNAMES or password_clean != ALLOWED_PASSWORD:
+        return templates.TemplateResponse(
+            "login_student.html",
+            {"request": request, "error": "You are not authorized to access. Please contact admin."}
+        )
+
+    # ✅ Record login entry
+    try:
+        login_entry = StudentLogin(email=email_clean, timestamp=datetime.now())
         db.add(login_entry)
         db.commit()
-        return RedirectResponse(url="/voicebot", status_code=302)
-    return templates.TemplateResponse("login_student.html", {"request": request, "error": "Only @bitsathy.ac.in emails allowed"})
+    except Exception as e:
+        db.rollback()
+        print(f"[WARN] Could not save login entry: {e}")
+
+    return RedirectResponse(url="/voicebot", status_code=302)
 
 # ---------------- VOICEBOT ----------------
 @app.get("/voicebot", response_class=HTMLResponse)

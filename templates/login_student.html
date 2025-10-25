@@ -4,137 +4,191 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Student Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background: linear-gradient(135deg, #1f1c2c, #928DAB);
-        color: #fff;
-        margin: 0;
-        overflow: hidden;
-        position: relative;
-    }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
-    /* Animated floating circles in background */
-    .circle {
-        position: absolute;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.05);
-        animation: float 10s infinite ease-in-out;
-    }
-    .circle:nth-child(1) { width: 120px; height: 120px; top: 10%; left: 10%; animation-duration: 12s; }
-    .circle:nth-child(2) { width: 180px; height: 180px; top: 60%; left: 70%; animation-duration: 15s; }
-    .circle:nth-child(3) { width: 100px; height: 100px; top: 70%; left: 20%; animation-duration: 10s; }
+  body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #141E30, #243B55, #3a0ca3, #7209b7);
+    background-size: 600% 600%;
+    animation: bgShift 16s ease infinite;
+    overflow: hidden;
+    position: relative;
+    color: white;
+  }
 
-    @keyframes float {
-        0%, 100% { transform: translateY(0) scale(1); }
-        50% { transform: translateY(-20px) scale(1.1); }
-    }
+  @keyframes bgShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 
-    .login-card {
-        background: rgba(255, 255, 255, 0.1);
-        padding: 40px;
-        border-radius: 20px;
-        text-align: center;
-        backdrop-filter: blur(15px);
-        width: 340px;
-        box-shadow: 0 0 25px rgba(255, 255, 255, 0.1);
-        animation: fadeIn 1.5s ease-in-out;
-    }
+  /* Floating glowing bubbles */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+    filter: blur(80px);
+    animation: float 14s infinite alternate ease-in-out;
+  }
+  .orb:nth-child(1) { width: 250px; height: 250px; top: 10%; left: 15%; background: #00f5ff; animation-duration: 12s; }
+  .orb:nth-child(2) { width: 350px; height: 350px; bottom: 10%; right: 10%; background: #b5179e; animation-duration: 18s; }
+  .orb:nth-child(3) { width: 150px; height: 150px; top: 70%; left: 25%; background: #4361ee; animation-duration: 16s; }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+  @keyframes float {
+    from { transform: translateY(0px); }
+    to { transform: translateY(-30px); }
+  }
 
-    h2 {
-        margin-bottom: 20px;
-        color: #fff;
-        font-weight: 600;
-    }
+  /* Rotating gradient ring */
+  .ring {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #00f5ff, #3a0ca3, #b5179e, #00f5ff);
+    filter: blur(120px);
+    opacity: 0.2;
+    animation: spin 14s linear infinite;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
 
-    input {
-        width: 100%;
-        padding: 12px;
-        margin: 10px 0;
-        border-radius: 8px;
-        border: none;
-        outline: none;
-        background: rgba(255,255,255,0.15);
-        color: #fff;
-        font-size: 15px;
-    }
-    input::placeholder {
-        color: rgba(255,255,255,0.7);
-    }
+  /* Login card styling */
+  .login-card {
+    position: relative;
+    z-index: 5;
+    width: 360px;
+    padding: 45px 35px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 35px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    animation: fadeIn 1.5s ease;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+  }
 
-    button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 10px;
-        border-radius: 8px;
-        border: none;
-        background: linear-gradient(90deg, #6a5acd, #836FFF);
-        color: white;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: 500;
-        transition: 0.3s ease;
-        box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
-    }
-    button:hover {
-        background: linear-gradient(90deg, #5c4bcf, #715AFF);
-        box-shadow: 0 0 25px rgba(138, 43, 226, 0.6);
-        transform: scale(1.03);
-    }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    .error {
-        color: #ff8080;
-        margin-top: 10px;
-        font-size: 14px;
-    }
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 25px;
+    background: linear-gradient(90deg, #00f5ff, #b5179e, #4361ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textGlow 3s ease-in-out infinite alternate;
+  }
 
-    /* Back icon outside the card */
-    .back-icon {
-        position: fixed;
-        top: 20px;
-        left: 25px;
-        font-size: 30px;
-        color: #fff;
-        cursor: pointer;
-        text-decoration: none;
-        z-index: 1000;
-        transition: 0.3s;
-    }
-    .back-icon:hover {
-        color: #ddd;
-        transform: scale(1.1);
-    }
+  @keyframes textGlow {
+    0% { text-shadow: 0 0 10px #00f5ff; }
+    100% { text-shadow: 0 0 25px #b5179e; }
+  }
+
+  input {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s;
+  }
+
+  input:focus {
+    background: rgba(255,255,255,0.25);
+    box-shadow: 0 0 10px #00f5ff;
+  }
+
+  input::placeholder {
+    color: rgba(255,255,255,0.7);
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #00f5ff, #b5179e, #7209b7);
+    background-size: 200% 200%;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(114, 9, 183, 0.4);
+    transition: 0.4s ease;
+    animation: btnPulse 6s linear infinite;
+  }
+
+  @keyframes btnPulse {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  button:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 25px #b5179e;
+  }
+
+  .error {
+    color: #ff7373;
+    font-weight: 600;
+    margin-top: 15px;
+  }
+
+  /* Back icon */
+  .back-icon {
+    position: absolute;
+    top: 20px;
+    left: 25px;
+    font-size: 32px;
+    color: white;
+    text-decoration: none;
+    z-index: 10;
+    transition: 0.3s;
+  }
+
+  .back-icon:hover {
+    color: #00f5ff;
+    transform: scale(1.2);
+  }
+
 </style>
 </head>
 <body>
 
-<!-- Animated floating shapes -->
-<div class="circle"></div>
-<div class="circle"></div>
-<div class="circle"></div>
+  <!-- Background effects -->
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="ring"></div>
 
-<!-- Back arrow outside the card -->
-<a href="/" class="back-icon">&#8592;</a>
+  <!-- Back button -->
+  <a href="/" class="back-icon">&#8592;</a>
 
-<!-- Login card -->
-<div class="login-card">
+  <!-- Login card -->
+  <div class="login-card">
     <h2>Student Login</h2>
     <form method="post" action="/student_login">
-        <input type="text" name="email" placeholder="Email" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <button type="submit">Login</button>
+      <input type="text" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Login</button>
     </form>
     <p class="error">{{error}}</p>
-</div>
+  </div>
 
 </body>
 </html>
