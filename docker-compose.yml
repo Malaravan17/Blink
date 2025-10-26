@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  ai-voice-bot:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./static/uploads:/app/static/uploads
+      - ./Student_Handbook_(2025_-2026).pdf:/app/static/uploads/Student_Handbook_(2025_-2026).pdf
+    environment:
+      - ENV=production
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped

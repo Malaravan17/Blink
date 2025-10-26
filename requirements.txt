@@ -5,11 +5,13 @@ sqlalchemy
 passlib[bcrypt]
 python-multipart
 PyPDF2
-sentence-transformers
+sentence-transformers==2.2.2
 faiss-cpu
 aiofiles
 pandas
 openpyxl
-torch
-transformers
+torch==2.2.0
+transformers==4.41.0
 numpy
+gunicorn
+python-dotenv
